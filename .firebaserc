@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "books-5da30": {
+      "hosting": {
+        "books": [
+          "books-5da30"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "books-5da30"
+  }
+}

@@ -1,6 +1,6 @@
 <div class="login-container vh-100 text-center">
   <div class="form-signin">
-    <form>
+    <form [formGroup]="form" (submit)="onSubmit()">
       <img
         class="mb-4"
         src="../../../assets/book_5_FILL1_wght500_GRAD0_opsz24.svg"
@@ -16,6 +16,7 @@
           class="form-control"
           id="floatingInput"
           placeholder="name@example.com"
+          formControlName="email"
         />
         <label for="floatingInput">Email address</label>
       </div>
@@ -25,6 +26,7 @@
           class="form-control"
           id="floatingPassword"
           placeholder="Password"
+          formControlName="password"
         />
         <label for="floatingPassword">Password</label>
       </div>
@@ -39,4 +41,5 @@
       </button>
     </form>
   </div>
+  <p></p>
 </div>
