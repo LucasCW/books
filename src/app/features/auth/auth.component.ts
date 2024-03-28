@@ -6,6 +6,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-auth',
@@ -22,7 +23,11 @@ export class AuthComponent implements OnInit {
 
   isAuthenticated = false;
 
-  constructor(private fb: FormBuilder, protected auth: Auth) {}
+  constructor(
+    private fb: FormBuilder,
+    protected auth: Auth,
+    private router: Router
+  ) {}
   ngOnInit(): void {
     this.auth.onAuthStateChanged((user) => {
       console.log(user);
@@ -35,6 +40,8 @@ export class AuthComponent implements OnInit {
       this.auth,
       this.form.value.email!,
       this.form.value.password!
-    );
+    ).then((user) => {
+      !!user && this.router.navigate(['books']);
+    });
   }
 }
