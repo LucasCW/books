@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import {
   NgbCollapseModule,
   NgbDropdownModule,
@@ -9,7 +9,7 @@ import {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [NgbCollapseModule, NgbDropdownModule],
+  imports: [NgbCollapseModule, NgbDropdownModule, RouterModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })
@@ -19,7 +19,7 @@ export class HeaderComponent {
   constructor(private auth: Auth, private router: Router) {}
 
   onAddABook() {
-    console.log('Add a book clicked');
+    this.router.navigate(['addbook']);
   }
 
   onLogout() {

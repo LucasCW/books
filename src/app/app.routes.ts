@@ -3,6 +3,7 @@ import { AuthComponent } from './features/auth/auth.component';
 import { BooksComponent } from './features/books/books.component';
 import { authenticationRequired } from './core/guards/authenticationRequired.guard';
 import { isAuthenticatedGuard } from './core/guards/isAuthenticated.guard';
+import { AddBookComponent } from './features/add-book/add-book.component';
 
 export const routes: Routes = [
   {
@@ -16,4 +17,9 @@ export const routes: Routes = [
     canActivate: [authenticationRequired],
   },
   { path: '', redirectTo: '/auth', pathMatch: 'full' },
+  {
+    path: 'addbook',
+    component: AddBookComponent,
+    canActivate: [authenticationRequired],
+  },
 ];
