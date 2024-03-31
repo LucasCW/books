@@ -26,7 +26,7 @@ export class BookService {
     );
   }
 
-  addBook(book: Book) {
+  addBook(book: Partial<Book>) {
     return addDoc(collection(getFirestore(), this.bookCollection), {
       ...book,
       userId: this.auth.currentUser?.uid,

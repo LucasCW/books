@@ -1,16 +1,23 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { Auth } from '@angular/fire/auth';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
-import { Book } from '../../core/model/book';
-import { BookService } from '../../core/services/book.service';
-import { IsbnService } from '../../core/services/isbn/isbn.service';
+import { DocumentReference } from '@angular/fire/firestore';
 import {
   getDownloadURL,
   getStorage,
   ref,
   uploadBytes,
 } from '@angular/fire/storage';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { Book } from '../../core/model/book';
+import { BookService } from '../../core/services/book.service';
+import { IsbnService } from '../../core/services/isbn/isbn.service';
 
 @Component({
   selector: 'app-add-book',
@@ -20,7 +27,32 @@ import {
   styleUrl: './add-book.component.scss',
 })
 export class AddBookComponent implements OnInit {
-  fileToUpload: File | undefined;
+  protected isPreviewSet = false;
+
+  @ViewChild('preview', { static: false })
+  private preview!: ElementRef;
+
+  private fileToUpload: File | undefined;
+
+  private fb = inject(FormBuilder);
+  private isbnService = inject(IsbnService);
+  private auth = inject(Auth);
+  private bookService = inject(BookService);
+
+  protected isbn = this.fb.group({
+    isbnSearch: ['9781408855652', Validators.required],
+  });
+
+  protected book = this.fb.group({
+    title: ['title', [Validators.required]],
+    isbn: 'isbn',
+    preview: [''],
+    date: [new Date(), Validators.required],
+    comments: 'comments',
+    url: ['', Validators.required],
+  });
+
+  protected initialValues = this.book.value;
 
   onFileUpload(event: Event) {
     if (
@@ -28,59 +60,42 @@ export class AddBookComponent implements OnInit {
       (event.target as HTMLInputElement).files?.length
     ) {
       this.fileToUpload = (event.target as HTMLInputElement).files![0];
+      this.updatePreview(this.fileToUpload);
     }
   }
 
-  async onSubmit() {
+  protected async onSubmit() {
     try {
-      const book: Book = {
+      const book: Partial<Book> = {
         title: this.book.value.title!,
         userId: this.auth.currentUser!.uid,
         comments: this.book.value.comments!,
         date: this.book.value.date!.getTime(),
         isbn: this.book.value.isbn!,
-        url: this.book.value.url!,
       };
 
       const docRef = await this.bookService.addBook(book);
 
-      const storage = getStorage();
-      const storageRef = ref(storage, docRef.id);
+      const downloadUrl = !!this.fileToUpload
+        ? await this.uploadToFireStorage(docRef)
+        : this.preview.nativeElement.src;
 
-      const uploadedFile = await uploadBytes(storageRef, this.fileToUpload!);
-      const downloadUrl = await getDownloadURL(uploadedFile.ref);
       await this.bookService.addUrl(docRef.id, downloadUrl);
 
-      this.book.reset();
+      this.resetBookForm();
     } catch (e) {
       console.error('Error adding document: ', e);
     }
   }
 
-  private fb = inject(FormBuilder);
-  private isbnService = inject(IsbnService);
-  private auth = inject(Auth);
-  private bookService = inject(BookService);
-
-  isbn = this.fb.group({
-    isbnSearch: ['9781408855652', Validators.required],
-  });
-
-  book = this.fb.group({
-    title: ['title', [Validators.required]],
-    isbn: 'isbn',
-    preview: ['', Validators.required],
-    date: [new Date(), Validators.required],
-    comments: 'comments',
-    url: [''],
-  });
-
-  protected initialValues = this.book.value;
-
-  async ngOnInit(): Promise<void> {
-    console.log('date value:', this.book.value.date);
-    this.book.reset(this.initialValues);
+  private async uploadToFireStorage(docRef: DocumentReference) {
+    const storage = getStorage();
+    const storageRef = ref(storage, docRef.id);
+    const fileUploaded = await uploadBytes(storageRef, this.fileToUpload!);
+    return await getDownloadURL(fileUploaded.ref);
   }
+
+  ngOnInit() {}
 
   onISBNSearch() {
     if (this.isbn.value.isbnSearch) {
@@ -91,9 +106,30 @@ export class AddBookComponent implements OnInit {
             title: res.items[0].volumeInfo.title,
             isbn: this.isbn.value.isbnSearch,
             comments: res.items[0].volumeInfo.description,
-            url: res.items[0].volumeInfo.infoLink,
           });
+
+          res.items[0].volumeInfo.imageLinks.thumbnail &&
+            this.updatePreview(res.items[0].volumeInfo.imageLinks.thumbnail);
         });
     }
+  }
+
+  private updatePreview(source: File | string) {
+    if (typeof source === 'string') {
+      this.preview.nativeElement.src = source;
+      this.isPreviewSet = true;
+      this.book.controls.url.setValue(source);
+    } else {
+      const url = URL.createObjectURL(source);
+      this.preview.nativeElement.src = url;
+      this.isPreviewSet = true;
+      this.book.controls.url.setValue(url);
+    }
+  }
+
+  private resetBookForm() {
+    this.book.reset(this.initialValues);
+    this.preview.nativeElement.src = '';
+    this.isPreviewSet = false;
   }
 }

@@ -44,6 +44,14 @@
         />
         <label for="title">Book Title</label>
       </div>
+      <div class="w-25 mx-auto" [hidden]="!isPreviewSet">
+        <img
+          src=""
+          class="rounded mx-auto d-block img-fluid"
+          alt="..."
+          #preview
+        />
+      </div>
       <div class="mb-3">
         <label class="mb-1" for="preview">Book Image</label>
         <div class="input-group mb-3">
@@ -51,9 +59,9 @@
             type="file"
             class="form-control"
             id="preview"
+            formControlName="preview"
             aria-describedby="preview"
             aria-label="Upload"
-            formControlName="preview"
             placeholder="Please upload an image of the book!"
             (change)="onFileUpload($event)"
           />
