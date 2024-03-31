@@ -29,6 +29,7 @@
             aria-current="page"
             routerLink="/books"
             routerLinkActive="active"
+            (click)="isMenuCollapsed = true"
             >My Books</a
           >
         </li>
@@ -39,49 +40,13 @@
             aria-current="page"
             routerLink="/addbook"
             routerLinkActive="active"
+            (click)="isMenuCollapsed = true"
             >Add A Book</a
           >
         </li>
         <li class="nav-item">
           <a class="nav-link" type="button" (click)="onLogout()">Logout</a>
         </li>
-        <!-- <li class="nav-item">
-          <a
-            class="nav-link disabled"
-            href="#"
-            tabindex="-1"
-            aria-disabled="true"
-            >Disabled</a
-          >
-        </li>
-        <li class="nav-item" ngbDropdown>
-          <a
-            class="nav-link"
-            ngbDropdownToggle
-            id="dropdown07"
-            aria-expanded="false"
-            >Dropdown</a
-          >
-          <ul
-            class="dropdown-menu"
-            ngbDropdownMenu
-            aria-labelledby="dropdown07"
-          >
-            <li>
-              <a class="dropdown-item" ngbDropdownItem href="#">Action</a>
-            </li>
-            <li>
-              <a class="dropdown-item" ngbDropdownItem href="#"
-                >Another action</a
-              >
-            </li>
-            <li>
-              <a class="dropdown-item" ngbDropdownItem href="#"
-                >Something else here</a
-              >
-            </li>
-          </ul>
-        </li> -->
       </ul>
       <form>
         <input
