@@ -6,6 +6,10 @@ import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { getStorage, provideStorage } from '@angular/fire/storage';
+import {
+  NgbDateAdapter,
+  NgbDateNativeAdapter,
+} from '@ng-bootstrap/ng-bootstrap';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
@@ -25,6 +29,7 @@ export const appConfig: ApplicationConfig = {
         })
       )
     ),
+    { provide: NgbDateAdapter, useClass: NgbDateNativeAdapter },
     importProvidersFrom(provideAuth(() => getAuth())),
     importProvidersFrom(provideFirestore(() => getFirestore())),
     importProvidersFrom(provideStorage(() => getStorage())),
