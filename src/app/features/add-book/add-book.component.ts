@@ -5,6 +5,12 @@ import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { Book } from '../../core/model/book';
 import { BookService } from '../../core/services/book.service';
 import { IsbnService } from '../../core/services/isbn/isbn.service';
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytes,
+} from '@angular/fire/storage';
 
 @Component({
   selector: 'app-add-book',
@@ -14,6 +20,17 @@ import { IsbnService } from '../../core/services/isbn/isbn.service';
   styleUrl: './add-book.component.scss',
 })
 export class AddBookComponent implements OnInit {
+  fileToUpload: File | undefined;
+
+  onFileUpload(event: Event) {
+    if (
+      (event.target as HTMLInputElement).files &&
+      (event.target as HTMLInputElement).files?.length
+    ) {
+      this.fileToUpload = (event.target as HTMLInputElement).files![0];
+    }
+  }
+
   async onSubmit() {
     try {
       const book: Book = {
@@ -26,7 +43,13 @@ export class AddBookComponent implements OnInit {
       };
 
       const docRef = await this.bookService.addBook(book);
-      console.log('Document written with ID: ', docRef.id);
+
+      const storage = getStorage();
+      const storageRef = ref(storage, docRef.id);
+
+      const uploadedFile = await uploadBytes(storageRef, this.fileToUpload!);
+      const downloadUrl = await getDownloadURL(uploadedFile.ref);
+      await this.bookService.addUrl(docRef.id, downloadUrl);
 
       this.book.reset();
     } catch (e) {
@@ -46,7 +69,7 @@ export class AddBookComponent implements OnInit {
   book = this.fb.group({
     title: ['title', [Validators.required]],
     isbn: 'isbn',
-    preview: [''],
+    preview: ['', Validators.required],
     date: [new Date(), Validators.required],
     comments: 'comments',
     url: [''],

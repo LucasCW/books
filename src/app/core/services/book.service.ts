@@ -2,9 +2,11 @@ import { Injectable, inject } from '@angular/core';
 import {
   addDoc,
   collection,
+  doc,
   getDocs,
   getFirestore,
   query,
+  updateDoc,
   where,
 } from '@angular/fire/firestore';
 import { Book } from '../model/book';
@@ -29,5 +31,11 @@ export class BookService {
       ...book,
       userId: this.auth.currentUser?.uid,
     });
+  }
+
+  addUrl(bookId: string, url: string) {
+    const bookRef = doc(getFirestore(), this.bookCollection, bookId);
+
+    return updateDoc(bookRef, { url: url });
   }
 }
