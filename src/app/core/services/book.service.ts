@@ -11,13 +11,15 @@ import {
 } from '@angular/fire/firestore';
 import { Book } from '../model/book';
 import { Auth } from '@angular/fire/auth';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class BookService {
-  private bookCollection = 'books';
+  private bookCollection = environment.booksCollection;
   private auth = inject(Auth);
 
   fetchBooks(userId: string) {
+    console.log('evn', environment.production);
     return getDocs(
       query(
         collection(getFirestore(), this.bookCollection),

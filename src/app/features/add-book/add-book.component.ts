@@ -18,6 +18,8 @@ import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { Book } from '../../core/model/book';
 import { BookService } from '../../core/services/book.service';
 import { IsbnService } from '../../core/services/isbn/isbn.service';
+import { environment } from '../../../environments/environment';
+import { eventListeners } from '@popperjs/core';
 
 @Component({
   selector: 'app-add-book',
@@ -90,12 +92,14 @@ export class AddBookComponent implements OnInit {
 
   private async uploadToFireStorage(docRef: DocumentReference) {
     const storage = getStorage();
-    const storageRef = ref(storage, docRef.id);
+    const storageRef = ref(storage, environment.booksFolder + docRef.id);
     const fileUploaded = await uploadBytes(storageRef, this.fileToUpload!);
     return await getDownloadURL(fileUploaded.ref);
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    console.log('env', environment.production);
+  }
 
   onISBNSearch() {
     if (this.isbn.value.isbnSearch) {
