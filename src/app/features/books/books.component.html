@@ -6,14 +6,15 @@
         <img [src]="book.url" class="card-img-top" alt="..." />
         <div class="card-body">
           <h5 class="card-title">{{ book.title }}</h5>
+          <h6 class="card-subtitle mb-3">{{ book.date | date }}</h6>
 
           <p class="card-text">
             {{ book.comments }}
           </p>
         </div>
-        <div class="card-footer">
-          <small class="text-muted">{{ book.date | date }}</small>
-        </div>
+        <button class="btn btn-danger" type="button" (click)="onDelete(book)">
+          Delete
+        </button>
       </div>
     </div>
     }

@@ -1,9 +1,11 @@
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
-import { BookService as BookService } from '../../core/services/book.service';
-import { BehaviorSubject } from 'rxjs';
+import { Store } from '@ngrx/store';
 import { Book } from '../../core/model/book';
-import { AsyncPipe, DatePipe } from '@angular/common';
+import { State } from '../../reducers';
+import { fetchBooks, removeBook } from '../../store/book/book.actions';
+import { selectBooks } from '../../store/book/book.selectors';
 
 @Component({
   selector: 'app-books',
@@ -13,20 +15,17 @@ import { AsyncPipe, DatePipe } from '@angular/common';
   styleUrl: './books.component.scss',
 })
 export class BooksComponent implements OnInit {
-  private books$ = new BehaviorSubject<Book[]>([]);
-  booksSub$ = this.books$.asObservable();
-
-  bookService = inject(BookService);
   auth = inject(Auth);
 
+  store = inject(Store<State>);
+
+  booksSub$ = this.store.select(selectBooks);
+
   ngOnInit(): void {
-    this.bookService.fetchBooks(this.auth.currentUser!.uid).then((res) => {
-      const results: Book[] = [];
-      res.forEach((snapshot) => {
-        console.log(snapshot.data());
-        results.push(snapshot.data() as Book);
-      });
-      this.books$.next(results);
-    });
+    this.store.dispatch(fetchBooks({ payload: this.auth.currentUser!.uid }));
+  }
+
+  onDelete(book: Book) {
+    this.store.dispatch(removeBook({ payload: book }));
   }
 }

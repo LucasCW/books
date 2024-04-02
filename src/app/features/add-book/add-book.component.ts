@@ -6,21 +6,15 @@ import {
   inject,
 } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
-import { DocumentReference } from '@angular/fire/firestore';
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytes,
-} from '@angular/fire/storage';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
-import { Book } from '../../core/model/book';
-import { BookService } from '../../core/services/book.service';
-import { IsbnService } from '../../core/services/isbn/isbn.service';
+import { Store } from '@ngrx/store';
 import { environment } from '../../../environments/environment';
-import { eventListeners } from '@popperjs/core';
-
+import { Book } from '../../core/model/book';
+import { IsbnService } from '../../core/services/isbn/isbn.service';
+import { State as AppState } from '../../reducers/index';
+import { addBook, uploadIMG } from '../../store/book/book.actions';
+import { uploadBytes } from '@angular/fire/storage';
 @Component({
   selector: 'app-add-book',
   standalone: true,
@@ -39,7 +33,7 @@ export class AddBookComponent implements OnInit {
   private fb = inject(FormBuilder);
   private isbnService = inject(IsbnService);
   private auth = inject(Auth);
-  private bookService = inject(BookService);
+  private store = inject(Store<AppState>);
 
   protected isbn = this.fb.group({
     isbnSearch: ['9781408855652', Validators.required],
@@ -76,25 +70,21 @@ export class AddBookComponent implements OnInit {
         isbn: this.book.value.isbn!,
       };
 
-      const docRef = await this.bookService.addBook(book);
-
-      const downloadUrl = !!this.fileToUpload
-        ? await this.uploadToFireStorage(docRef)
-        : this.preview.nativeElement.src;
-
-      await this.bookService.addUrl(docRef.id, downloadUrl);
+      this.store.dispatch(
+        addBook({
+          payload: {
+            book: book,
+            file: this.fileToUpload
+              ? this.fileToUpload
+              : (this.preview.nativeElement.src as string),
+          },
+        })
+      );
 
       this.resetBookForm();
     } catch (e) {
       console.error('Error adding document: ', e);
     }
-  }
-
-  private async uploadToFireStorage(docRef: DocumentReference) {
-    const storage = getStorage();
-    const storageRef = ref(storage, environment.booksFolder + docRef.id);
-    const fileUploaded = await uploadBytes(storageRef, this.fileToUpload!);
-    return await getDownloadURL(fileUploaded.ref);
   }
 
   ngOnInit() {
