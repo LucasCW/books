@@ -1,12 +1,13 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { Auth } from '@angular/fire/auth';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './shared/header/header.component';
-import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent],
+  imports: [RouterOutlet, HeaderComponent, AsyncPipe],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })

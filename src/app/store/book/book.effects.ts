@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { EMPTY, Observable, catchError, from, map, switchMap, tap } from 'rxjs';
+import { EMPTY, catchError, from, map, switchMap } from 'rxjs';
 import { Book } from '../../core/model/book';
 import { BookService } from '../../core/services/book.service';
 import {
@@ -11,8 +11,21 @@ import {
   loadBooks,
   removeBook,
   removeBookFromStore,
+  startFetchBooks,
   uploadIMG,
 } from './book.actions';
+
+export const startFetchEffect = createEffect(
+  (actions$ = inject(Actions)) => {
+    return actions$.pipe(
+      ofType(startFetchBooks),
+      map((props) => {
+        return fetchBooks({ payload: props.payload });
+      })
+    );
+  },
+  { functional: true }
+);
 
 export const fetchEffect = createEffect(
   (action$ = inject(Actions), bookService = inject(BookService)) => {

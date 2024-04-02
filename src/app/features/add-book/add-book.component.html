@@ -114,8 +114,19 @@
         formControlName="url"
         hidden
       />
-      <button class="btn btn-primary" type="submit" [disabled]="!book.valid">
-        Submit
+      <button
+        class="btn btn-primary"
+        type="submit"
+        [disabled]="!book.valid || (isLoading$ | async)"
+      >
+        @if(isLoading$ | async) {
+        <span
+          class="spinner-border spinner-border-sm"
+          role="status"
+          aria-hidden="true"
+        ></span>
+        <span class="visually-hidden">Saving</span>
+        } @else {Submit}
       </button>
     </form>
   </div>

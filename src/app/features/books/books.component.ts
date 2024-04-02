@@ -4,8 +4,8 @@ import { Auth } from '@angular/fire/auth';
 import { Store } from '@ngrx/store';
 import { Book } from '../../core/model/book';
 import { State } from '../../reducers';
-import { fetchBooks, removeBook } from '../../store/book/book.actions';
-import { selectBooks } from '../../store/book/book.selectors';
+import { removeBook, startFetchBooks } from '../../store/book/book.actions';
+import { isLoading, selectBooks } from '../../store/book/book.selectors';
 
 @Component({
   selector: 'app-books',
@@ -19,10 +19,14 @@ export class BooksComponent implements OnInit {
 
   store = inject(Store<State>);
 
+  isLoadingBooks$ = this.store.select(isLoading);
+
   booksSub$ = this.store.select(selectBooks);
 
   ngOnInit(): void {
-    this.store.dispatch(fetchBooks({ payload: this.auth.currentUser!.uid }));
+    this.store.dispatch(
+      startFetchBooks({ payload: this.auth.currentUser!.uid })
+    );
   }
 
   onDelete(book: Book) {

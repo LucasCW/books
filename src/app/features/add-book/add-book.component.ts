@@ -1,3 +1,4 @@
+import { AsyncPipe } from '@angular/common';
 import {
   Component,
   ElementRef,
@@ -13,12 +14,13 @@ import { environment } from '../../../environments/environment';
 import { Book } from '../../core/model/book';
 import { IsbnService } from '../../core/services/isbn/isbn.service';
 import { State as AppState } from '../../reducers/index';
-import { addBook, uploadIMG } from '../../store/book/book.actions';
-import { uploadBytes } from '@angular/fire/storage';
+import { addBook } from '../../store/book/book.actions';
+import { isLoading } from '../../store/book/book.selectors';
+
 @Component({
   selector: 'app-add-book',
   standalone: true,
-  imports: [ReactiveFormsModule, NgbDatepickerModule],
+  imports: [ReactiveFormsModule, NgbDatepickerModule, AsyncPipe],
   templateUrl: './add-book.component.html',
   styleUrl: './add-book.component.scss',
 })
@@ -34,6 +36,8 @@ export class AddBookComponent implements OnInit {
   private isbnService = inject(IsbnService);
   private auth = inject(Auth);
   private store = inject(Store<AppState>);
+
+  protected isLoading$ = this.store.select(isLoading);
 
   protected isbn = this.fb.group({
     isbnSearch: ['9781408855652', Validators.required],

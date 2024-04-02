@@ -1,17 +1,25 @@
 import { createAction, props } from '@ngrx/store';
 import { Book } from '../../core/model/book';
-import { DocumentReference } from '@angular/fire/firestore';
 
 export const FETCH_BOOKS = '[Books] Fetch Books';
 export const LOAD_BOOKS = '[Books] Load Books';
 export const ADD_BOOK = '[Books] Add Book';
 export const ADD_URL = '[Books] Add URL';
-
 export const UPLOAD_IMG = '[Books] Upload IMG';
-
 export const ADD_BOOK_STORE = '[Books] Add Book Store';
 export const REMOVE_BOOK = '[Books] Remove Book';
 export const REMOVE_BOOK_STORE = '[Books] Remove Book Store';
+export const START_FETCH_BOOKS = '[Books] Start Fetch Books';
+
+export const startFetchBooks = createAction(
+  START_FETCH_BOOKS,
+  props<{ payload: string }>()
+);
+
+export const fetchBooks = createAction(
+  FETCH_BOOKS,
+  props<{ payload: string }>()
+);
 
 export const addBook = createAction(
   ADD_BOOK,
@@ -28,11 +36,6 @@ export const uploadIMG = createAction(
 export const addBookStore = createAction(
   ADD_BOOK_STORE,
   props<{ payload: Book }>()
-);
-
-export const fetchBooks = createAction(
-  FETCH_BOOKS,
-  props<{ payload: string }>()
 );
 
 export const removeBook = createAction(REMOVE_BOOK, props<{ payload: Book }>());

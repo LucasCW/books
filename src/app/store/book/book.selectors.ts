@@ -7,3 +7,8 @@ export const selectBooks = createSelector(
   selectBookFeature,
   (state: State) => state.books
 );
+
+export const isLoading = createSelector(
+  selectBookFeature,
+  (state: State) => state.isLoading
+);
