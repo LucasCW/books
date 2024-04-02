@@ -2,6 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import {
   Component,
   ElementRef,
+  OnDestroy,
   OnInit,
   ViewChild,
   inject,
@@ -10,6 +11,7 @@ import { Auth } from '@angular/fire/auth';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Book } from '../../core/model/book';
 import { IsbnService } from '../../core/services/isbn/isbn.service';
@@ -24,7 +26,7 @@ import { isLoading } from '../../store/book/book.selectors';
   templateUrl: './add-book.component.html',
   styleUrl: './add-book.component.scss',
 })
-export class AddBookComponent implements OnInit {
+export class AddBookComponent implements OnInit, OnDestroy {
   protected isPreviewSet = false;
 
   @ViewChild('preview', { static: false })
@@ -38,6 +40,7 @@ export class AddBookComponent implements OnInit {
   private store = inject(Store<AppState>);
 
   protected isLoading$ = this.store.select(isLoading);
+  private isLoadingSub?: Subscription;
 
   protected isbn = this.fb.group({
     isbnSearch: ['9781408855652', Validators.required],
@@ -93,6 +96,15 @@ export class AddBookComponent implements OnInit {
 
   ngOnInit() {
     console.log('env', environment.production);
+    this.isLoadingSub = this.isLoading$.subscribe((isLoading) => {
+      isLoading
+        ? this.isbn.controls.isbnSearch.disable()
+        : this.isbn.controls.isbnSearch.enable();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.isLoadingSub?.unsubscribe();
   }
 
   onISBNSearch() {
