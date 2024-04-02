@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, from, map, switchMap } from 'rxjs';
+import { EMPTY, Observable, catchError, from, map, switchMap, tap } from 'rxjs';
 import { Book } from '../../core/model/book';
 import { BookService } from '../../core/services/book.service';
 import {
@@ -48,6 +48,27 @@ export const removeBookEffect = createEffect(
     );
   },
   { functional: true }
+);
+
+export const removeFileEffect = createEffect(
+  (action$ = inject(Actions), bookService = inject(BookService)) => {
+    return action$.pipe(
+      ofType(removeBook),
+      switchMap((props) => {
+        return from(
+          bookService.removeFileFromFireStorage(props.payload.id!)
+        ).pipe(
+          catchError((err, caught) => {
+            console.log('err', err);
+            console.log(caught);
+            return EMPTY;
+            // return caught;
+          })
+        );
+      })
+    );
+  },
+  { dispatch: false, functional: true }
 );
 
 export const addBookEffect = createEffect(

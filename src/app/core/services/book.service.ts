@@ -12,6 +12,7 @@ import {
   where,
 } from '@angular/fire/firestore';
 import {
+  deleteObject,
   getDownloadURL,
   getStorage,
   ref,
@@ -32,6 +33,11 @@ export class BookService {
       const fileUploaded = await uploadBytes(storageRef, file);
       return await getDownloadURL(fileUploaded.ref);
     })();
+  }
+
+  removeFileFromFireStorage(docId: string) {
+    const fileRef = ref(getStorage(), environment.booksFolder + docId);
+    return deleteObject(fileRef);
   }
 
   fetchBooks(userId: string) {
