@@ -129,5 +129,6 @@ export class AddBookComponent implements OnInit {
     this.book.reset(this.initialValues);
     this.preview.nativeElement.src = '';
     this.isPreviewSet = false;
+    this.fileToUpload = undefined;
   }
 }
