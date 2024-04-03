@@ -6,7 +6,7 @@
   </div>
 
   <div class="row g-5">
-    <form [formGroup]="isbn" (ngSubmit)="onISBNSearch()">
+    <form [formGroup]="isbnForm" (ngSubmit)="onISBNSearch()">
       <h4 class="mb-3">
         Search your book with ISBN to automatically fill in the book
         information.
@@ -20,8 +20,14 @@
           aria-describedby="isbnSearch"
           formControlName="isbnSearch"
           name="isbnSearch"
+          [class.is-invalid]="isInvalid(isbnSearch)"
         />
       </div>
+      @if ( isInvalid(isbnSearch)) {
+      <div class="invalid-feedback d-block">
+        Please provide the ISBN of the book then hit ENTER.
+      </div>
+      }
       <button
         class="btn btn-primary"
         type="submit"
@@ -32,8 +38,13 @@
       </button>
     </form>
     <hr />
-    <form [formGroup]="book" (ngSubmit)="onSubmit()">
-      <h4 class="mb-3">Please complete the details of the book.</h4>
+    <form
+      [formGroup]="book"
+      (ngSubmit)="onSubmit()"
+      novalidate
+      class="needs-validation"
+    >
+      <h4 class="mb-3">Book Information</h4>
       <div class="form-floating mb-3">
         <input
           type="text"
@@ -41,15 +52,21 @@
           id="title"
           placeholder="Book Title"
           formControlName="title"
+          [class.is-invalid]="isInvalid(title)"
         />
         <label for="title">Book Title</label>
+        @if ( isInvalid(title)) {
+        <div class="invalid-feedback d-block">
+          Please provide the title of the book.
+        </div>
+        }
       </div>
       <div class="w-25 mx-auto" [hidden]="!isPreviewSet">
         <img
           src=""
           class="rounded mx-auto d-block img-fluid"
           alt="..."
-          #preview
+          #imgPreview
         />
       </div>
       <div class="mb-3">
@@ -64,7 +81,13 @@
             aria-label="Upload"
             placeholder="Please upload an image of the book!"
             (change)="onFileUpload($event)"
+            [class.is-invalid]="preview.touched && url.invalid && preview.dirty"
           />
+          @if ( preview.touched && url.invalid && preview.dirty) {
+          <div class="invalid-feedback d-block">
+            Please provide the date you finished this book.
+          </div>
+          }
         </div>
       </div>
       <div class="input-group mb-3">
@@ -75,6 +98,7 @@
             formControlName="date"
             ngbDatepicker
             #d="ngbDatepicker"
+            [class.is-invalid]="isInvalid(date)"
           />
           <label for="date">Date</label>
         </div>
@@ -85,6 +109,11 @@
         >
           <span class="material-symbols-outlined"> calendar_month </span>
         </button>
+        @if ( isInvalid(date)) {
+        <div class="invalid-feedback d-block">
+          Please provide the date you finished this book.
+        </div>
+        }
       </div>
       <div class="form-floating mb-3">
         <input

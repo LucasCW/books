@@ -2,13 +2,19 @@ import { AsyncPipe } from '@angular/common';
 import {
   Component,
   ElementRef,
+  Input,
   OnDestroy,
   OnInit,
   ViewChild,
   inject,
 } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
@@ -29,8 +35,8 @@ import { isLoading } from '../../store/book/book.selectors';
 export class AddBookComponent implements OnInit, OnDestroy {
   protected isPreviewSet = false;
 
-  @ViewChild('preview', { static: false })
-  private preview!: ElementRef;
+  @ViewChild('imgPreview', { static: false })
+  private previewRef!: ElementRef;
 
   private fileToUpload: File | undefined;
 
@@ -42,12 +48,12 @@ export class AddBookComponent implements OnInit, OnDestroy {
   protected isLoading$ = this.store.select(isLoading);
   private isLoadingSub?: Subscription;
 
-  protected isbn = this.fb.group({
+  protected isbnForm = this.fb.group({
     isbnSearch: ['9781408855652', Validators.required],
   });
 
   protected book = this.fb.group({
-    title: ['title', [Validators.required]],
+    title: ['', [Validators.required]],
     isbn: 'isbn',
     preview: [''],
     date: [new Date(), Validators.required],
@@ -83,7 +89,7 @@ export class AddBookComponent implements OnInit, OnDestroy {
             book: book,
             file: this.fileToUpload
               ? this.fileToUpload
-              : (this.preview.nativeElement.src as string),
+              : (this.previewRef.nativeElement.src as string),
           },
         })
       );
@@ -98,8 +104,8 @@ export class AddBookComponent implements OnInit, OnDestroy {
     console.log('env', environment.production);
     this.isLoadingSub = this.isLoading$.subscribe((isLoading) => {
       isLoading
-        ? this.isbn.controls.isbnSearch.disable()
-        : this.isbn.controls.isbnSearch.enable();
+        ? this.isbnForm.controls.isbnSearch.disable()
+        : this.isbnForm.controls.isbnSearch.enable();
     });
   }
 
@@ -108,13 +114,13 @@ export class AddBookComponent implements OnInit, OnDestroy {
   }
 
   onISBNSearch() {
-    if (this.isbn.value.isbnSearch) {
+    if (this.isbnForm.value.isbnSearch) {
       this.isbnService
-        .search(this.isbn.value.isbnSearch)
+        .search(this.isbnForm.value.isbnSearch)
         .subscribe((res: any) => {
           this.book.patchValue({
             title: res.items[0].volumeInfo.title,
-            isbn: this.isbn.value.isbnSearch,
+            isbn: this.isbnForm.value.isbnSearch,
             comments: res.items[0].volumeInfo.description,
           });
 
@@ -126,12 +132,12 @@ export class AddBookComponent implements OnInit, OnDestroy {
 
   private updatePreview(source: File | string) {
     if (typeof source === 'string') {
-      this.preview.nativeElement.src = source;
+      this.previewRef.nativeElement.src = source;
       this.isPreviewSet = true;
       this.book.controls.url.setValue(source);
     } else {
       const url = URL.createObjectURL(source);
-      this.preview.nativeElement.src = url;
+      this.previewRef.nativeElement.src = url;
       this.isPreviewSet = true;
       this.book.controls.url.setValue(url);
     }
@@ -139,8 +145,36 @@ export class AddBookComponent implements OnInit, OnDestroy {
 
   private resetBookForm() {
     this.book.reset(this.initialValues);
-    this.preview.nativeElement.src = '';
+    this.previewRef.nativeElement.src = '';
     this.isPreviewSet = false;
     this.fileToUpload = undefined;
+  }
+
+  get isbnSearch() {
+    return this.isbnForm.controls.isbnSearch;
+  }
+
+  get title() {
+    return this.book.controls.title;
+  }
+
+  get isbn() {
+    return this.book.controls.isbn;
+  }
+
+  get preview() {
+    return this.book.controls.preview;
+  }
+
+  get date() {
+    return this.book.controls.date;
+  }
+
+  get url() {
+    return this.book.controls.url;
+  }
+
+  isInvalid(formControl: FormControl) {
+    return formControl.touched && formControl.invalid;
   }
 }
