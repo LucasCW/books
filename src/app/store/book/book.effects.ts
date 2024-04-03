@@ -69,7 +69,7 @@ export const removeFileEffect = createEffect(
       ofType(removeBook),
       switchMap((props) => {
         return from(
-          bookService.removeFileFromFireStorage(props.payload.id!)
+          bookService.removeFileFromFireStorage(props.payload.id)
         ).pipe(
           catchError((err, caught) => {
             console.log('err', err);
@@ -122,7 +122,7 @@ export const addUrlEffect = createEffect(
       ofType(addUrl),
       switchMap((props) => {
         return from(
-          bookService.addUrl(props.payload.id!, props.payload.url!)
+          bookService.addUrl(props.payload.id, props.payload.url!)
         ).pipe(
           map(() => {
             return addBookStore({ payload: { ...props.payload } });

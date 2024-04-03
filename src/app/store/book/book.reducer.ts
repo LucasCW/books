@@ -1,3 +1,4 @@
+import { EntityState, createEntityAdapter } from '@ngrx/entity';
 import { createReducer, on } from '@ngrx/store';
 import { Book } from '../../core/model/book';
 import {
@@ -8,18 +9,16 @@ import {
   startFetchBooks,
 } from './book.actions';
 
-export interface State {
+export interface State extends EntityState<Book> {
   isLoading: boolean;
-  books: Book[];
 }
 
-const initState: State = {
-  isLoading: false,
-  books: [],
-};
+export const adapter = createEntityAdapter<Book>();
+
+const initialState: State = adapter.getInitialState({ isLoading: false });
 
 export const reducer = createReducer(
-  initState,
+  initialState,
   on(startFetchBooks, (state, action) => {
     return {
       ...state,
@@ -33,23 +32,12 @@ export const reducer = createReducer(
     };
   }),
   on(loadBooks, (state, action) => {
-    return {
-      ...state,
-      books: action.payload,
-      isLoading: false,
-    };
+    return adapter.setAll(action.payload, { ...state, isLoading: false });
   }),
   on(removeBookFromStore, (state, action) => {
-    return {
-      ...state,
-      books: [...state.books.filter((book) => action.payload.id! != book.id!)],
-    };
+    return adapter.removeOne(action.payload.id, state);
   }),
   on(addBookStore, (state, action) => {
-    return {
-      ...state,
-      books: [...state.books, { ...action.payload }],
-      isLoading: false,
-    };
+    return adapter.addOne(action.payload, { ...state, isLoading: false });
   })
 );

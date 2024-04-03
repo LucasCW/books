@@ -62,8 +62,6 @@ export class BookService {
   }
 
   removeBook(book: Book) {
-    return deleteDoc(
-      doc(getFirestore(), environment.booksCollection, book.id!)
-    );
+    return deleteDoc(doc(getFirestore(), environment.booksCollection, book.id));
   }
 }
